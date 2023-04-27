@@ -1,0 +1,78 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  REPOSITORY: voice-analysis
+  ORGANIZATION: capstone-oreo
+  DOCKER_COMPOSE_FILE: docker-compose.prod.yml
+
+jobs:
+  push-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker registry login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.ORGANIZATION }}
+          password: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Build image and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: |
+            ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
+          push: true
+
+  deploy:
+    needs: [ push-docker-image ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # docker image 이름 compose.prod.yml에 붙여넣기
+      - name: Set ${{ env.DOCKER_COMPOSE_FILE }}
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./${{ env.DOCKER_COMPOSE_FILE }}
+        env:
+          services.flask.image: ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
+
+      # 파일을 ssh를 통해 서버로 복사
+      - name: Copy docker compose & Scripts
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: './${{ env.DOCKER_COMPOSE_FILE }}, ./script'
+          target: ${{ env.REPOSITORY }}
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd ~/${{ env.REPOSITORY }}
+            echo ${{ secrets.ACCESS_TOKEN }} | docker login https://ghcr.io -u ${{ env.ORGANIZATION }} --password-stdin
+            chmod +x ./script/*.sh
+            ./script/deploy.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }} ${{ env.DOCKER_COMPOSE_FILE }}
+            docker logout https://ghcr.io
+            if [ "$?" -ge 1 ]
+            then
+              exit 1
+            fi
