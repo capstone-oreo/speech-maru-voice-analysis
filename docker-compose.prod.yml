@@ -1,0 +1,13 @@
+version: '3'
+services:
+  flask:
+    container_name: flask
+    image: docker-image # cd.yml로 이미지 설정
+    ports:
+      - "8000:8000"
+    networks:
+      - oreo
+
+networks:
+  oreo:
+    external: true
