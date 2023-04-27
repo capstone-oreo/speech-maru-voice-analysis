@@ -8,3 +8,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    networks:
+      - oreo
+
+networks:
+  oreo:
+    external: true
