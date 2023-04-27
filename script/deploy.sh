@@ -5,7 +5,7 @@ REPOSITORY=$2
 DOCKER_COMPOSE_FILE=$3
 
 # flask 컨테이너가 실행 중이면 종료한다
-if [ "$(docker ps -aqf name="^flask")" ];
+if [ "$(docker ps -aqf name="^flask$")" ];
 then
   echo "> flask container 제거"
   docker stop flask && docker rm flask
