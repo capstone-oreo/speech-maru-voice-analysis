@@ -13,6 +13,7 @@ class STT:
         self.client_secret = os.getenv("CLIENT_SECRET")
         self.redis_client = redis.Redis(host='redis', port=6379, db=0)
 
+    # redis에서 token을 찾고 없으면 api 요청 후 redis에 저장한다.
     def get_access_token(self):
         self.access_token = self.redis_client.get('access_token')
         if self.access_token is None:
