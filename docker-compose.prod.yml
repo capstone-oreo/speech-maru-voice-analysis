@@ -5,6 +5,10 @@ services:
     image: docker-image # cd.yml로 이미지 설정
     ports:
       - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - VITO_CLIENT_ID=${VITO_CLIENT_ID}
+      - VITO_CLIENT_SECRET=${VITO_CLIENT_SECRET}
     networks:
       - oreo
 
