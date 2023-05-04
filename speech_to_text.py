@@ -14,6 +14,7 @@ class Stt:
         self.client_secret = os.getenv("CLIENT_SECRET")
         self.redis_client = redis.Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
 
+    # 파일을 Vito API에 전송하고 id를 받는다.
     def get_transcribe_id(self, voice_file):
         access_token = self.__get_access_token()
         headers = {'Authorization': 'bearer ' + access_token}
@@ -24,6 +25,7 @@ class Stt:
             raise RuntimeError(f"변환에 실패했습니다: {response.text}")
         return response.json()['id']
 
+    # id list를 통해 변환된 글을 순서대로 list로 받는다.
     def get_transcribe_msg_by_id_list(self, transcribe_id_list):
         access_token = self.__get_access_token()
         headers = {'Authorization': 'bearer ' + access_token}

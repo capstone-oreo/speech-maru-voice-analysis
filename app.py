@@ -14,7 +14,7 @@ class Test(Resource):
         return 'flask'
 
 
-# 업로드한 파일을 바로 다운로드한다.
+# 음성을 글로 변환한다.
 @api.route('/stt')
 class SttRouter(Resource):
     stt = speech_to_text.Stt()
