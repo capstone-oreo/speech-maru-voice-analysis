@@ -29,10 +29,7 @@ class Stt:
         headers = {'Authorization': 'bearer ' + access_token}
         msg_list = []
         for transcribe_id in transcribe_id_list:
-            result = requests.get('https://openapi.vito.ai/v1/transcribe/' + transcribe_id, headers=headers).json()
-            while result['status'] == 'transcribing':
-                time.sleep(0.2)
-                result = requests.get('https://openapi.vito.ai/v1/transcribe/' + transcribe_id, headers=headers).json()
+            result = self.__get_transcription_result(transcribe_id, headers)
             # 변환 성공
             if result['status'] == 'completed':
                 msg_list.append(result['results']['utterances'][0]['msg'])
@@ -56,3 +53,10 @@ class Stt:
         else:
             access_token = access_token.decode()
         return access_token
+
+    def __get_transcription_result(self, transcribe_id, headers):
+        result = requests.get('https://openapi.vito.ai/v1/transcribe/' + transcribe_id, headers=headers).json()
+        while result['status'] == 'transcribing':
+            time.sleep(0.2)
+            result = requests.get('https://openapi.vito.ai/v1/transcribe/' + transcribe_id, headers=headers).json()
+        return result
