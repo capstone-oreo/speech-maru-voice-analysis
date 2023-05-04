@@ -37,7 +37,8 @@ class Stt:
             if result['status'] == 'completed':
                 msg_list.append(result['results']['utterances'][0]['msg'])
             # 변환 실패
-            raise RuntimeError("STT 변환에 실패했습니다.")
+            else:
+                raise RuntimeError("STT 변환에 실패했습니다.")
         return msg_list
 
     # redis에서 token을 찾고 없으면 api 요청 후 redis에 저장한다.
