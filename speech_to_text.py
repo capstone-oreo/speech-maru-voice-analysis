@@ -10,8 +10,8 @@ load_dotenv()
 
 class Stt:
     def __init__(self):
-        self.client_id = os.getenv("CLIENT_ID")
-        self.client_secret = os.getenv("CLIENT_SECRET")
+        self.client_id = os.getenv("VITO_CLIENT_ID")
+        self.client_secret = os.getenv("VITO_CLIENT_SECRET")
         self.redis_client = redis.Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
 
     # 파일을 Vito API에 전송하고 id를 받는다.
