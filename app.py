@@ -1,6 +1,7 @@
-from flask import Flask, request, send_file
+from flask import Flask, request
 from flask_restx import Resource, Api
-import tempfile
+
+import speech_to_text
 
 app = Flask(__name__)
 api = Api(app)
@@ -13,19 +14,19 @@ class Test(Resource):
         return 'flask'
 
 
-# 업로드한 파일을 바로 다운로드한다.
-@api.route('/upload')
-class Upload(Resource):
+# 음성을 글로 변환한다.
+@api.route('/stt')
+class SttRouter(Resource):
+    stt = speech_to_text.Stt()
+
     def post(self):
         if 'file' not in request.files:
             return 'No file part'
         file = request.files['file']
         if file.filename == '':
             return 'No selected file'
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            file.save(tmp_file.name)
-            return send_file(tmp_file.name, attachment_filename=file.filename, as_attachment=True,
-                             mimetype=file.content_type)
+        transcribe_id = self.stt.get_transcribe_id(file)
+        return self.stt.get_transcribe_msg_by_id_list([transcribe_id])
 
 
 if __name__ == '__main__':

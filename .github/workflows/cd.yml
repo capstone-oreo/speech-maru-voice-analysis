@@ -42,6 +42,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # docker compose에서 사용할 환경 변수
+      - name: Make .env
+        run: |
+          echo "VITO_CLIENT_ID=${{ secrets.VITO_CLIENT_ID }}
+          VITO_CLIENT_SECRET=${{ secrets.VITO_CLIENT_SECRET }}" > .env
+
       # docker image 이름 compose.prod.yml에 붙여넣기
       - name: Set ${{ env.DOCKER_COMPOSE_FILE }}
         uses: microsoft/variable-substitution@v1
@@ -57,7 +63,7 @@ jobs:
           host: ${{ secrets.SSH_IP }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: './${{ env.DOCKER_COMPOSE_FILE }}, ./script'
+          source: './${{ env.DOCKER_COMPOSE_FILE }}, ./script, ./.env'
           target: ${{ env.REPOSITORY }}
 
       - name: Deploy
