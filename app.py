@@ -25,6 +25,10 @@ class SttRouter(Resource):
         file = request.files['file']
         if file.filename == '':
             return 'No selected file'
+        # 나누기
+        # vito get 요청 id를 받음
+        # 배열로 get_transcribe_msg_by_id_list 전달
+        # stt.get_transcribe_id(file)만 for문 돌리기 (sentence append는 이미 get_transcribe_msg_by_id_list)
         transcribe_id = self.stt.get_transcribe_id(file)
         return self.stt.get_transcribe_msg_by_id_list([transcribe_id])
 
