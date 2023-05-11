@@ -3,3 +3,5 @@
 **/.env
 **/capstone_venv/**
 .venv
+*.wav
+*.mp3
