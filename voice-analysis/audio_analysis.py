@@ -12,6 +12,7 @@ class audio_preprocessor:
         #self.y,self.sr=sf.read(file)
         self.y,self.sr=librosa.load(file, sr=None)
         self.audio_file=file
+        self.duration=librosa.get_duration(y=self.y, sr=self.sr)
 
     def concat_audio(self,y, sr):
         self.y=np.concatenate((self.y, y),axis=0)
@@ -31,7 +32,21 @@ class audio_preprocessor:
         plt.ylabel("Amplitude")
         plt.title("Waveform")
         plt.show()
+    
+    """
+    def trim_audio_data(self, sec=1):
+        audio_array=[]
+        time_series=1*self.sr 
+        total=len(self.y)
+        samples_wrote=0
+        counter=1
 
+        while samples_wrote<total:
+                if time_series>(total-samples_wrote):
+                        time_series=total-samples_wrote
+                block=self.y[samples_wrote:(samples_wrote+time_series)]
+                audio_array.append(block)
+    """
 
 
 class audio_analyzer(audio_preprocessor):
@@ -64,16 +79,30 @@ class audio_analyzer(audio_preprocessor):
             silence_intervals.append((prev_end+5,len(self.y)))
         return silence_intervals
     
+    # return tempo per sec 
+    def get_tempos(self, sec=1):
+        tempo_array=[]
+        audio_cnt=0
+        interval_duration=sec
+        total_duration=self.duration 
+        if total_duration%interval_duration==0:
+                audio_cnt=total_duration//interval_duration
+        else :
+                audio_cnt=total_duration//interval_duration+1 
 
-    def get_tempos(self):
-        onset_env=librosa.onset.onset_strength(y=self.y,sr=self.sr)
-        self.tempo_array=librosa.feature.tempo(onset_envelope=onset_env, sr=self.sr, aggregate=None)
-        return self.tempo_array
-    
+        for i in range(int(audio_cnt)): 
+            tmp=self.y[self.sr*interval_duration*i:self.sr*interval_duration*(i+1)]
+            tempo,beats=librosa.beat.beat_track(y=tmp,sr=self.sr)
+            tempo_array.append(tempo)
+        
+        return tempo_array
+             
     
     def get_decibels(self):
-        self.decibel_array=librosa.amplitude_to_db(self.y)
-        return self.decibel_array
+        frames=librosa.util.frame(self.y, frame_length=2048, hop_length=512)
+        decibel_frames=librosa.amplitude_to_db(frames, ref=np.max)
+        decibel_per_second=np.mean(decibel_frames,axis=0)
+        return decibel_per_second
     
     
     # 음성 구간 사이사이에 (침묵) 구간을 추가하기 위한 기능 
@@ -123,8 +152,15 @@ class audio_analyzer(audio_preprocessor):
 # 3. 원하는 함수 적용 (tmp=audio.get_tempos())
 
 
-#filename='voice-analysis\sebasi.mp3'
-#audio=audio_analyzer(filename)
+filename='voice-analysis\sebasi.mp3'
+audio=audio_analyzer(filename)
+print(audio.get_tempos())
 
-#tmp=audio.split_audio_by_silence('sebasi')
-#print('\nfiltered_intervals:',tmp)
+"""
+plt.figure()
+librosa.display.waveshow(tempos,sr=audio.sr, alpha=0.5)
+plt.xlabel("Time(s)")
+plt.ylabel("Tempos")
+plt.title("Tempos")
+plt.show()
+"""
