@@ -174,7 +174,7 @@ class audio_analyzer(audio_preprocessor):
 # 3. 원하는 함수 적용 (tmp=audio.get_tempos())
 
 
-filename='voice-analysis\sebasi.mp3'
+filename='voice_analysis\sebasi.mp3'
 
 audio=audio_analyzer(filename)
 #audio.amplitude_visualize()
