@@ -95,6 +95,17 @@ class audio_analyzer(audio_preprocessor):
             tempo,beats=librosa.beat.beat_track(y=tmp,sr=self.sr)
             tempo_array.append(tempo)
         
+        # 시각화
+        """
+        plt.figure()
+        plt.plot(list(range(len(tempo_array))),tempo_array)
+        plt.xlabel("Time(s)")
+        plt.ylabel("Tempo")
+        plt.title("Tempo")
+        plt.show()
+        """
+        
+       
         return tempo_array
              
     
@@ -102,11 +113,23 @@ class audio_analyzer(audio_preprocessor):
         frames=librosa.util.frame(self.y, frame_length=2048, hop_length=512)
         decibel_frames=librosa.amplitude_to_db(frames, ref=np.max)
         decibel_per_second=np.mean(decibel_frames,axis=0)
+        print(len(decibel_per_second))
+        
+        # 시각화
+        """
+        plt.figure()
+        plt.plot(list(range(len(decibel_per_second))),decibel_per_second)
+        plt.xlabel("Time(s)")
+        plt.ylabel("Decibels")
+        plt.title("Decibels")
+        plt.show()
+        """
+
         return decibel_per_second
     
     
     # 음성 구간 사이사이에 (침묵) 구간을 추가하기 위한 기능 
-    def split_audio_by_silence(self, output_file, top_db=50, min_silence_duration=2, save_file=False):
+    def split_audio_by_silence(self, output_file, top_db=40, min_silence_duration=1, save_file=False):
         intervals=librosa.effects.split(self.y, top_db=top_db)
         
         filtered_intervals=[]
@@ -120,9 +143,17 @@ class audio_analyzer(audio_preprocessor):
                         filtered_intervals.append([prev_end,end])
                         prev_end=end
         if prev_end < len(self.y):
-            filtered_intervals.append([prev_end,len(self.y)])
-                    
-        # 시각화
+            filtered_intervals.append([prev_end,len(self.y)])       
+        
+        # 파일 저장 후 결과 반환
+        # split한 파일 저장 
+        if save_file==True:
+            for i, interval in enumerate(filtered_intervals):
+                start_time, end_time=interval
+                out_file=f"{output_file}_{i}.wav"
+                sf.write(out_file, self.y[start_time:end_time], self.sr)
+
+         # 시각화
         """
         plt.figure()
         librosa.display.waveshow(self.y,sr=self.sr, alpha=0.5)
@@ -133,15 +164,8 @@ class audio_analyzer(audio_preprocessor):
         plt.ylabel("Amplitude")
         plt.title("Waveform")
         plt.show()
-        """
+         """
         
-        # 파일 저장 후 결과 반환
-        # split한 파일 저장 
-        if save_file==True:
-            for i, interval in enumerate(filtered_intervals):
-                start_time, end_time=interval
-                out_file=f"{output_file}_{i}.wav"
-                sf.write(out_file, self.y[start_time:end_time], self.sr)
 
         return filtered_intervals
 
@@ -153,14 +177,12 @@ class audio_analyzer(audio_preprocessor):
 
 
 filename='voice-analysis\sebasi.mp3'
-audio=audio_analyzer(filename)
-print(audio.get_tempos())
 
-"""
-plt.figure()
-librosa.display.waveshow(tempos,sr=audio.sr, alpha=0.5)
-plt.xlabel("Time(s)")
-plt.ylabel("Tempos")
-plt.title("Tempos")
-plt.show()
-"""
+audio=audio_analyzer(filename)
+#audio.amplitude_visualize()
+#print(audio.get_decibels())
+print(audio.get_tempos())
+#audio.split_audio_by_silence('sebasi',save_file=True)
+#print('get_speech_intervals : ',audio.get_speech_intervals(),'\n')
+#print('get_silence_intervals : ',audio.get_silence_intervals(),'\n')
+
