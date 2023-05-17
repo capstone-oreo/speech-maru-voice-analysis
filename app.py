@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_restx import Resource, Api
 from voice_analysis import audio_analysis
+import os
 
 import speech_to_text
 
@@ -29,12 +30,14 @@ class SttRouter(Resource):
         # 나누기
         audio=audio_analysis.audio_analyzer(file)
         output_file=f"{file}"
-        splitted_audios=audio.split_audio_by_silence(output_file=output_file)
+        splitted_audios=audio.split_audio_by_silence(output_file=output_file, save_file=True)
         # vito get 요청 id를 받음
         ids=[]
-        for audio in splitted_audios:
-            transcribe_id = self.stt.get_transcribe_id(file)
+        for i, audio in enumerate(splitted_audios):
+            out_file=f"tmp_{i}.wav"
+            transcribe_id = self.stt.get_transcribe_id(out_file)
             ids.append(transcribe_id)
+            os.remove(out_file)
         # 배열로 get_transcribe_msg_by_id_list 전달
         # stt.get_transcribe_id(file)만 for문 돌리기 (sentence append는 이미 get_transcribe_msg_by_id_list)
   

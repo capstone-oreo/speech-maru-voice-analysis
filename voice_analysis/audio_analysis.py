@@ -148,7 +148,7 @@ class audio_analyzer(audio_preprocessor):
         if save_file==True:
             for i, interval in enumerate(filtered_intervals):
                 start_time, end_time=interval
-                out_file=f"{output_file}_{i}.wav"
+                out_file=f"tmp_{i}.wav"
                 sf.write(out_file, self.y[start_time:end_time], self.sr)
 
          # 시각화
@@ -166,6 +166,8 @@ class audio_analyzer(audio_preprocessor):
         
 
         return filtered_intervals
+    
+        
 
         
 
