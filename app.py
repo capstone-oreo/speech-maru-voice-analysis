@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_restx import Resource, Api
-from voice-analysis import audio_analysis
+from voice_analysis import audio_analysis
 
 import speech_to_text
 
@@ -28,7 +28,8 @@ class SttRouter(Resource):
             return 'No selected file'
         # 나누기
         audio=audio_analysis.audio_analyzer(file)
-        splitted_audios=audio.split_audio_by_silence()
+        output_file=f"{file}"
+        splitted_audios=audio.split_audio_by_silence(output_file=output_file)
         # vito get 요청 id를 받음
         ids=[]
         for audio in splitted_audios:
