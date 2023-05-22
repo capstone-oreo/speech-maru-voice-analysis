@@ -4,12 +4,6 @@ import time
 import redis
 import requests
 from dotenv import load_dotenv
-import logging 
-
-
-logging.basicConfig(level=logging.INFO)
-
-logger = logging.getLogger()
 
 
 load_dotenv()
@@ -41,12 +35,9 @@ class Stt:
             result = self.__get_transcription_result(transcribe_id, headers)
             # 변환 성공
             if result['status'] == 'completed':
-                logger.info(f'id: {transcribe_id}, result:{result}')
-                
                 if not result['results']['utterances']:
                     continue                
                 msg_list.append(result['results']['utterances'][0]['msg'])
-
             # 변환 실패
             else:
                 raise RuntimeError("STT 변환에 실패했습니다.")
