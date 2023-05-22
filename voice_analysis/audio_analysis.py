@@ -16,8 +16,6 @@ class audio_preprocessor:
         self.y=np.concatenate((self.y, y),axis=0)
 
     def trim_silence(self):
-        # yt : trimmed signal
-        # index : the interval of 'y' corresponding to the non-silent region
         self.yt,self.index=librosa.effects.trim(self.y)
 
     def get_info(self):
@@ -127,7 +125,9 @@ class audio_analyzer(audio_preprocessor):
     
     
     # 음성 구간 사이사이에 (침묵) 구간을 추가하기 위한 기능 
-    def split_audio_by_silence(self, output_file, top_db=40, min_silence_duration=1, save_file=False):
+
+    def split_audio_by_silence(self, filename, top_db=60, min_silence_duration=3, save_file=False):
+        
         intervals=librosa.effects.split(self.y, top_db=top_db)
         
         filtered_intervals=[]
@@ -140,7 +140,10 @@ class audio_analyzer(audio_preprocessor):
                 if silence_duration>=min_silence_duration:
                         filtered_intervals.append([prev_end,end])
                         prev_end=end
-        if prev_end < len(self.y):
+
+        # last_sec : 마지막 남은 초 (1초로 설정)
+        last_sec=1
+        if (len(self.y)-prev_end)>last_sec*self.sr:
             filtered_intervals.append([prev_end,len(self.y)])       
         
         # 파일 저장 후 결과 반환
@@ -148,7 +151,7 @@ class audio_analyzer(audio_preprocessor):
         if save_file==True:
             for i, interval in enumerate(filtered_intervals):
                 start_time, end_time=interval
-                out_file=f"tmp_{i}.wav"
+                out_file=f"./temp_audio/{filename}_{i}.wav"
                 sf.write(out_file, self.y[start_time:end_time], self.sr)
 
          # 시각화
@@ -162,9 +165,8 @@ class audio_analyzer(audio_preprocessor):
         plt.ylabel("Amplitude")
         plt.title("Waveform")
         plt.show()
-         """
+        """
         
-
         return filtered_intervals
     
         
@@ -176,13 +178,13 @@ class audio_analyzer(audio_preprocessor):
 # 3. 원하는 함수 적용 (tmp=audio.get_tempos())
 
 
-filename='voice_analysis\sebasi.mp3'
+#filename='voice_analysis/ssul.mp3'
 
-audio=audio_analyzer(filename)
+#audio=audio_analyzer(filename)
 #audio.amplitude_visualize()
 #print(audio.get_decibels())
-print(audio.get_tempos())
-#audio.split_audio_by_silence('sebasi',save_file=True)
+#print(audio.get_tempos())
+#audio.split_audio_by_silence('sull',save_file=False)
 #print('get_speech_intervals : ',audio.get_speech_intervals(),'\n')
 #print('get_silence_intervals : ',audio.get_silence_intervals(),'\n')
 
