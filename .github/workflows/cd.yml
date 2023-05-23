@@ -6,7 +6,7 @@ on:
       - 'main'
 
 env:
-  REPOSITORY: voice-analysis
+  REPOSITORY: speech-maru-voice-analysis
   ORGANIZATION: capstone-oreo
   DOCKER_COMPOSE_FILE: docker-compose.prod.yml
 
