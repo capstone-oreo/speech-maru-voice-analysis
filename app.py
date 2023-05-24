@@ -4,7 +4,6 @@ from voice_analysis import audio_analysis
 import os
 import uuid
 
-
 import speech_to_text
 
 app = Flask(__name__)
@@ -18,7 +17,6 @@ class Test(Resource):
         return 'flask'
 
 
-
 # 음성을 글로 변환한다.
 @api.route('/stt')
 class SttRouter(Resource):
@@ -26,26 +24,27 @@ class SttRouter(Resource):
 
     def post(self):
         if 'file' not in request.files:
-            raise RuntimeError('No file part')      
+            raise RuntimeError('No file part')
         file = request.files['file']
         if file.filename == '':
             raise RuntimeError('No selected file')
 
-        
-        filename=str(uuid.uuid4())
-        filepath=os.path.join('./temp_audio/', filename)
+        filename = str(uuid.uuid4())
+        directory = './temp_audio/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        filepath = os.path.join(directory, filename)
         file.save(filepath)
-        
-        
+
         # librosa 이용해서 파일 자르기
-        audio=audio_analysis.audio_analyzer(filepath)
-        splitted_audios=audio.split_audio_by_silence(filename,save_file=True)
+        audio = audio_analysis.audio_analyzer(filepath)
+        splitted_audios = audio.split_audio_by_silence(filename, save_file=True)
 
         # vito get 요청 id를 받음
-        ids=[]
-        for i, audio in enumerate(splitted_audios): 
-            out_file=f"./temp_audio/{filename}_{i}.wav"
-            transcribe_id = self.stt.get_transcribe_id(open(out_file,'rb'))
+        ids = []
+        for i, audio in enumerate(splitted_audios):
+            out_file = f"./temp_audio/{filename}_{i}.wav"
+            transcribe_id = self.stt.get_transcribe_id(open(out_file, 'rb'))
             ids.append(transcribe_id)
             os.remove(out_file)
 
@@ -60,4 +59,3 @@ class SttRouter(Resource):
 
 if __name__ == '__main__':
     app.run()
-
