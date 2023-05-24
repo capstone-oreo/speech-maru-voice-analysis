@@ -1,5 +1,8 @@
 from flask import Flask, request
 from flask_restx import Resource, Api
+from voice_analysis import audio_analysis
+import os
+import uuid
 
 import speech_to_text
 
@@ -21,12 +24,37 @@ class SttRouter(Resource):
 
     def post(self):
         if 'file' not in request.files:
-            return 'No file part'
+            raise RuntimeError('No file part')
         file = request.files['file']
         if file.filename == '':
-            return 'No selected file'
-        transcribe_id = self.stt.get_transcribe_id(file)
-        return self.stt.get_transcribe_msg_by_id_list([transcribe_id])
+            raise RuntimeError('No selected file')
+
+        filename = str(uuid.uuid4())
+        directory = './temp_audio/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        filepath = os.path.join(directory, filename)
+        file.save(filepath)
+
+        # librosa 이용해서 파일 자르기
+        audio = audio_analysis.audio_analyzer(filepath)
+        splitted_audios = audio.split_audio_by_silence(filename, save_file=True)
+
+        # vito get 요청 id를 받음
+        ids = []
+        for i, audio in enumerate(splitted_audios):
+            out_file = f"./temp_audio/{filename}_{i}.wav"
+            transcribe_id = self.stt.get_transcribe_id(open(out_file, 'rb'))
+            ids.append(transcribe_id)
+            os.remove(out_file)
+
+        """
+        for i, audio in enumerate(splitted_audios): 
+            out_file=f"/temp_audio/{filename}_{i}.wav"
+            os.remove(out_file)
+        """
+        os.remove(filepath)
+        return self.stt.get_transcribe_msg_by_id_list(ids)
 
 
 if __name__ == '__main__':

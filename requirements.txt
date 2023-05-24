@@ -4,3 +4,6 @@ gunicorn
 redis==4.5.4
 requests==2.28.2
 python-dotenv==1.0.0
+librosa 
+soundfile==0.12.1
+matplotlib

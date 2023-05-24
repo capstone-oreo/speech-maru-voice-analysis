@@ -5,6 +5,7 @@ import redis
 import requests
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -34,6 +35,8 @@ class Stt:
             result = self.__get_transcription_result(transcribe_id, headers)
             # 변환 성공
             if result['status'] == 'completed':
+                if not result['results']['utterances']:
+                    continue                
                 msg_list.append(result['results']['utterances'][0]['msg'])
             # 변환 실패
             else:
