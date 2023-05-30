@@ -1,5 +1,7 @@
 from flask import Flask, request
 from flask_restx import Resource, Api
+
+from stt_response import SttResponse
 from voice_analysis import audio_analysis
 import os
 import uuid
@@ -54,7 +56,8 @@ class SttRouter(Resource):
             os.remove(out_file)
         """
         os.remove(filepath)
-        return self.stt.get_transcribe_msg_by_id_list(ids)
+        response = SttResponse(self.stt.get_transcribe_msg_by_id_list(ids))
+        return response.__dict__
 
 
 if __name__ == '__main__':
