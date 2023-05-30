@@ -88,7 +88,6 @@ class text_analyzer(text_preprocessor):
       max_iter = 10
       keyword, rank, graph = wordrank_extractor.extract(self.sentence_arr, beta, max_iter)
       for word, r in sorted(keyword.items(), key=lambda x:x[1], reverse=True)[:30]:
-        print('%8s:\t%.4f' % (word, r))
         keywords.append(word)
       return keywords
 
