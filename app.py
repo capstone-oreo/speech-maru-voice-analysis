@@ -7,6 +7,7 @@ import os
 import uuid
 
 import speech_to_text
+import stt_response
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,6 +24,8 @@ class Test(Resource):
 @api.route('/stt')
 class SttRouter(Resource):
     stt = speech_to_text.Stt()
+
+    sttResponse=stt_response.SttResponse()
 
     def post(self):
         if 'file' not in request.files:
@@ -47,7 +50,8 @@ class SttRouter(Resource):
         for i, audio in enumerate(splitted_audios):
             out_file = f"./temp_audio/{filename}_{i}.wav"
             transcribe_id = self.stt.get_transcribe_id(open(out_file, 'rb'))
-            ids.append(transcribe_id)
+            self.sttResponse.text.append(transcribe_id)
+            #ids.append(transcribe_id)
             os.remove(out_file)
 
         """
