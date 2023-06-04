@@ -35,23 +35,6 @@ class text_preprocessor:
         self.silence_added_text='(침묵)'.join(self.sentences)
         return self.silence_added_text
 
-    # sentence 토큰화 
-    """
-    
-    def sentence_tokenize(self):
-        concat_sent=self.concat_sentences()
-        return split_sentences(concat_sent)
-    
-    """
-
-    # word 토큰화
-    """
-    def word_tokenize(self):
-        #self.okt=Okt()
-        self.morphs=self.okt.morphs(self.text)
-        return self.morphs
-
-    """
 
 MAIN_TAG=['NNG','NNP','NP','VV','VA','XR','SL','MAG','MAJ']
 
@@ -78,7 +61,7 @@ class text_analyzer(text_preprocessor):
         if len(sentence)>max_length:
           long_sentences.append(sentence)
       # 길이가 긴 문장 갯수, 총 문장 갯수
-      return len(long_sentences), len(self.sentence_arr)
+      return len(self.sentence_arr), len(long_sentences)
 
     def get_one_text_with_silence(self):
        text_with_silence=self.concat_silence_sentences()
