@@ -1,5 +1,5 @@
 import librosa 
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 import numpy as np
 import soundfile as sf
 
@@ -21,6 +21,7 @@ class audio_preprocessor:
     def get_info(self):
         return self.y, self.sr
     
+    """
     def amplitude_visualize(self):
         plt.figure()
         librosa.display.waveshow(self.y,sr=self.sr, alpha=0.5)
@@ -28,21 +29,8 @@ class audio_preprocessor:
         plt.ylabel("Amplitude")
         plt.title("Waveform")
         plt.show()
+    """
     
-    """
-    def trim_audio_data(self, sec=1):
-        audio_array=[]
-        time_series=1*self.sr 
-        total=len(self.y)
-        samples_wrote=0
-        counter=1
-
-        while samples_wrote<total:
-                if time_series>(total-samples_wrote):
-                        time_series=total-samples_wrote
-                block=self.y[samples_wrote:(samples_wrote+time_series)]
-                audio_array.append(block)
-    """
 
 
 class audio_analyzer(audio_preprocessor):
@@ -91,17 +79,7 @@ class audio_analyzer(audio_preprocessor):
             tempo,beats=librosa.beat.beat_track(y=tmp,sr=self.sr)
             tempo_array.append(tempo)
         
-        # 시각화
-        """
-        plt.figure()
-        plt.plot(list(range(len(tempo_array))),tempo_array)
-        plt.xlabel("Time(s)")
-        plt.ylabel("Tempo")
-        plt.title("Tempo")
-        plt.show()
-        """
-        
-       
+      
         return tempo_array
              
     
@@ -109,7 +87,7 @@ class audio_analyzer(audio_preprocessor):
         frames=librosa.util.frame(self.y, frame_length=2048, hop_length=512)
         decibel_frames=librosa.amplitude_to_db(frames, ref=np.max)
         decibel_per_second=np.mean(decibel_frames,axis=0)
-        print(len(decibel_per_second))
+        #print(len(decibel_per_second))
         
         # 시각화
         """
@@ -121,7 +99,7 @@ class audio_analyzer(audio_preprocessor):
         plt.show()
         """
 
-        return decibel_per_second
+        return decibel_per_second.tolist()
     
     
     # 음성 구간 사이사이에 (침묵) 구간을 추가하기 위한 기능 
@@ -183,8 +161,5 @@ class audio_analyzer(audio_preprocessor):
 #audio=audio_analyzer(filename)
 #audio.amplitude_visualize()
 #print(audio.get_decibels())
-#print(audio.get_tempos())
-#audio.split_audio_by_silence('sull',save_file=False)
-#print('get_speech_intervals : ',audio.get_speech_intervals(),'\n')
-#print('get_silence_intervals : ',audio.get_silence_intervals(),'\n')
-
+#tmp=audio.get_tempos()
+#print(type(tmp))
