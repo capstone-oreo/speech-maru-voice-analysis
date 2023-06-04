@@ -78,32 +78,24 @@ class audio_analyzer(audio_preprocessor):
             tmp=self.y[self.sr*interval_duration*i:self.sr*interval_duration*(i+1)]
             tempo,beats=librosa.beat.beat_track(y=tmp,sr=self.sr)
             tempo_array.append(tempo)
-        
-      
-        return tempo_array
+
+        compressed_tempo=[]
+        for i in range(len(tempo_array)):
+            if i%6==0:
+                compressed_tempo.append(tempo_array[i])
+        #print(len(compressed_tempo))
+        return compressed_tempo
              
     
     def get_decibels(self):
-        frames=librosa.util.frame(self.y, frame_length=2048, hop_length=512)
+        frames=librosa.util.frame(self.y, frame_length=2048, hop_length=262144)
         decibel_frames=librosa.amplitude_to_db(frames, ref=np.max)
         decibel_per_second=np.mean(decibel_frames,axis=0)
         #print(len(decibel_per_second))
-        
-        # 시각화
-        """
-        plt.figure()
-        plt.plot(list(range(len(decibel_per_second))),decibel_per_second)
-        plt.xlabel("Time(s)")
-        plt.ylabel("Decibels")
-        plt.title("Decibels")
-        plt.show()
-        """
-
         return decibel_per_second.tolist()
     
     
     # 음성 구간 사이사이에 (침묵) 구간을 추가하기 위한 기능 
-
     def split_audio_by_silence(self, filename, top_db=60, min_silence_duration=3, save_file=False):
         
         intervals=librosa.effects.split(self.y, top_db=top_db)
@@ -156,10 +148,11 @@ class audio_analyzer(audio_preprocessor):
 # 3. 원하는 함수 적용 (tmp=audio.get_tempos())
 
 
-#filename='voice_analysis/ssul.mp3'
+#filename='voice_analysis/sebasi.mp3'
 
 #audio=audio_analyzer(filename)
 #audio.amplitude_visualize()
 #print(audio.get_decibels())
-#tmp=audio.get_tempos()
+#audio.get_decibels()
+#audio.get_tempos()
 #print(type(tmp))
