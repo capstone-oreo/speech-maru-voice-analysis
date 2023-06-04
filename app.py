@@ -3,11 +3,11 @@ from flask_restx import Resource, Api
 
 from stt_response import SttResponse
 from voice_analysis import audio_analysis
+from text_analysis import texts_analysis
 import os
 import uuid
 
 import speech_to_text
-import stt_response
 
 app = Flask(__name__)
 api = Api(app)
@@ -25,7 +25,6 @@ class Test(Resource):
 class SttRouter(Resource):
     stt = speech_to_text.Stt()
 
-    sttResponse=stt_response.SttResponse()
 
     def post(self):
         if 'file' not in request.files:
@@ -43,6 +42,8 @@ class SttRouter(Resource):
 
         # librosa 이용해서 파일 자르기
         audio = audio_analysis.audio_analyzer(filepath)
+        audio_tempos=audio.get_tempos()
+        audio_decibels=audio.get_decibels()
         splitted_audios = audio.split_audio_by_silence(filename, save_file=True)
 
         # vito get 요청 id를 받음
@@ -50,8 +51,7 @@ class SttRouter(Resource):
         for i, audio in enumerate(splitted_audios):
             out_file = f"./temp_audio/{filename}_{i}.wav"
             transcribe_id = self.stt.get_transcribe_id(open(out_file, 'rb'))
-            self.sttResponse.text.append(transcribe_id)
-            #ids.append(transcribe_id)
+            ids.append(transcribe_id)
             os.remove(out_file)
 
         """
@@ -60,7 +60,10 @@ class SttRouter(Resource):
             os.remove(out_file)
         """
         os.remove(filepath)
-        response = SttResponse(self.stt.get_transcribe_msg_by_id_list(ids))
+        
+        texts=self.stt.get_transcribe_msg_by_id_list(ids)
+        text=texts_analysis.text_analyzer(texts)
+        response = SttResponse(texts, audio_tempos, audio_decibels, text.keyword_extract(),text.longsent_extract(), text.frequentword_extract())
         return response.__dict__
 
 

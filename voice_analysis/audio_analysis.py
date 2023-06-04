@@ -1,5 +1,5 @@
 import librosa 
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 import numpy as np
 import soundfile as sf
 
@@ -21,6 +21,7 @@ class audio_preprocessor:
     def get_info(self):
         return self.y, self.sr
     
+    """
     def amplitude_visualize(self):
         plt.figure()
         librosa.display.waveshow(self.y,sr=self.sr, alpha=0.5)
@@ -28,6 +29,7 @@ class audio_preprocessor:
         plt.ylabel("Amplitude")
         plt.title("Waveform")
         plt.show()
+    """
     
     """
     def trim_audio_data(self, sec=1):
@@ -183,8 +185,19 @@ class audio_analyzer(audio_preprocessor):
 #audio=audio_analyzer(filename)
 #audio.amplitude_visualize()
 #print(audio.get_decibels())
-#print(audio.get_tempos())
+#tmp=audio.get_tempos()
+#print(type(tmp))
 #audio.split_audio_by_silence('sull',save_file=False)
 #print('get_speech_intervals : ',audio.get_speech_intervals(),'\n')
 #print('get_silence_intervals : ',audio.get_silence_intervals(),'\n')
+"""
 
+import sys, os 
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from stt_response import SttResponse 
+
+stt_list=['안녕하세유', '이것은 예시 문장 !', '테스트를 위한 문장이에요', '성공 기원 가득 만땅 하시길 ..']
+response = SttResponse(stt_list, audio.get_tempos(), audio.get_decibels(), stt_list,stt_list,stt_list )
+print(response.__dict__)
+
+"""
