@@ -62,8 +62,13 @@ class SttRouter(Resource):
         os.remove(filepath)
         
         texts=self.stt.get_transcribe_msg_by_id_list(ids)
+        if not texts:
+            raise RuntimeError("말이 인식되지 않았습니다. 음성을 녹음하신 후 다시 시도하세요")
         text=texts_analysis.text_analyzer(texts)
-        response = SttResponse(texts, audio_tempos, audio_decibels, text.keyword_extract(),text.longsent_extract(), text.frequentword_extract())
+        try:
+            response = SttResponse(texts, audio_tempos, audio_decibels, text.keyword_extract(),text.longsent_extract(), text.frequentword_extract())
+        except Exception:
+            raise RuntimeError("문장의 길이가 짧아 분석할 수 없습니다.")
         return response.__dict__
 
 
