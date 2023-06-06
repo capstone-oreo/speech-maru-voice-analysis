@@ -77,7 +77,7 @@ class text_analyzer(text_preprocessor):
       beta = 0.85    # PageRank의 decaying factor beta
       max_iter = 10
       keyword, rank, graph = wordrank_extractor.extract(self.sentence_arr, beta, max_iter)
-      for word, r in sorted(keyword.items(), key=lambda x:x[1], reverse=True)[:10]:
+      for word, r in sorted(keyword.items(), key=lambda x:x[1], reverse=True)[:5]:
         keywords.append(word)
       return keywords
 
