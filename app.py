@@ -6,7 +6,6 @@ from voice_analysis import audio_analysis
 from text_analysis import texts_analysis
 import os
 import uuid
-
 import speech_to_text
 
 app = Flask(__name__)
